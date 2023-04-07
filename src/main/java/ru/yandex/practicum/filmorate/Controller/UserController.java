@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.Controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.ValidateData;
+import ru.yandex.practicum.filmorate.service.ValidateService;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class UserController {
     @GetMapping("/users")
     public List<User> findAll() {
         log.info("Текущее количество фильмов: {}", users.size());
-        return users.values().stream().toList();
+        return (List<User>) users.values();
     }
 
     /**
@@ -32,7 +32,7 @@ public class UserController {
     @PostMapping(value = "/users")
     public User addUser(@Valid @RequestBody User user) {
         log.info("Пытаемся добавить юзера {}", user);
-        User validatedUser = ValidateData.validate(user);
+        User validatedUser = ValidateService.validate(user);
         user.setId(id);
         users.put(id, validatedUser);
         id += 1;
@@ -47,7 +47,7 @@ public class UserController {
     public User updateFilm(@Valid @RequestBody User user) {
         if (!users.containsKey(user.getId()))
             throw new ValidationException("Пользователя с id " + id + " не существует");
-        User validatedUser = ValidateData.validate(user);
+        User validatedUser = ValidateService.validate(user);
         users.put(user.getId(), validatedUser);
         log.info("Изменен юзер с id {}", user.getId());
         return user;

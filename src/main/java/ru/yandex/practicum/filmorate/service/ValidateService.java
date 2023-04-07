@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.time.Month;
 
-public class ValidateData {
+public class ValidateService {
     public static void validate(Film film) {
         if ((film.getName().isEmpty())
                 || film.getDescription().length() > 200
