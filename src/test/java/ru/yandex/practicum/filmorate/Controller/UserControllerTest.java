@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.Controller;
 
-import jakarta.validation.constraints.Email;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,15 +7,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.ValidateService;
 
+import javax.validation.constraints.Email;
 import java.time.LocalDate;
 import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
-
-    UserController userController = new UserController();
 
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -41,15 +40,13 @@ class UserControllerTest {
     @Test
     void addWrongEmailUser() {
         User wrongEmail = DefaultUser.builder().id(1).email("mail.mail").build();
-
-        assertThrows(ValidationException.class, () -> userController.addUser(wrongEmail));
+        assertThrows(ValidationException.class, () -> ValidateService.validate(wrongEmail));
     }
 
     @Test
     void addEmptyEmailUser() {
         User wrongEmail = DefaultUser.builder().id(1).email("").build();
-
-        assertThrows(ValidationException.class, () -> userController.addUser(wrongEmail));
+        assertThrows(ValidationException.class, () -> ValidateService.validate(wrongEmail));
     }
 
     /**
@@ -58,15 +55,13 @@ class UserControllerTest {
     @Test
     void addEmptyLoginUser() {
         User wrongLogin = DefaultUser.builder().id(1).login("").build();
-
-        assertThrows(ValidationException.class, () -> userController.addUser(wrongLogin));
+        assertThrows(ValidationException.class, () -> ValidateService.validate(wrongLogin));
     }
 
     @Test
     void addWrongLoginUser() {
         User wrongLogin = DefaultUser.builder().id(1).login("asdf asdf").build();
-
-        assertThrows(ValidationException.class, () -> userController.addUser(wrongLogin));
+        assertThrows(ValidationException.class, () -> ValidateService.validate(wrongLogin));
     }
 
     /**
@@ -75,7 +70,7 @@ class UserControllerTest {
     @Test
     void addNoNameUser() {
         User noNameUser = DefaultUser.builder().id(1).name(null).build();
-        User user = userController.addUser(noNameUser);
+        User user = ValidateService.validate(noNameUser);
         Assertions.assertEquals(DefaultUser.builder().id(1).name(noNameUser.getLogin()).build(), user);
     }
 
@@ -85,7 +80,6 @@ class UserControllerTest {
     @Test
     void addWrongBirthdateUser() {
         User wrongBirthday = DefaultUser.builder().id(1).birthday(LocalDate.now().plusDays(1)).build();
-
-        assertThrows(ValidationException.class, () -> userController.addUser(wrongBirthday));
+        assertThrows(ValidationException.class, () -> ValidateService.validate(wrongBirthday));
     }
 }

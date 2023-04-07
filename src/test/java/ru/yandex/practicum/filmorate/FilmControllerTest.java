@@ -1,12 +1,12 @@
-package ru.yandex.practicum.filmorate.Controller;
+package ru.yandex.practicum.filmorate;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
 
-    FilmController filmController = new FilmController();
     private final String nameBeforeBorder = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
     private final LocalDate borderDate = LocalDate.of(1895, Month.DECEMBER, 28);
 
@@ -41,7 +40,7 @@ class FilmControllerTest {
     void addEmptyNamedFilm() {
         Film emptyNamed = DefaultFilm.builder().id(1).name("").build();
 
-        assertThrows(NullPointerException.class, () -> filmController.addFilm(emptyNamed));
+        assertThrows(NullPointerException.class, () -> ValidateService.validate(emptyNamed));
     }
 
     /**
@@ -50,8 +49,7 @@ class FilmControllerTest {
     @Test
     void updateFilmShorterDescription() {
         Film longNamedFilm = DefaultFilm.builder().id(1).description(nameBeforeBorder).build();
-        Film addedFilm = filmController.addFilm(longNamedFilm);
-        Assertions.assertEquals(longNamedFilm, addedFilm);
+        ValidateService.validate(longNamedFilm);
     }
 
     @Test
@@ -59,15 +57,14 @@ class FilmControllerTest {
         String nameAfterBorder = nameBeforeBorder + "12";
         Film longNamedFilm = DefaultFilm.builder().id(1).description(nameAfterBorder).build();
 
-        assertThrows(ValidationException.class, () -> filmController.addFilm(longNamedFilm));
+        assertThrows(ValidationException.class, () -> ValidateService.validate(longNamedFilm));
     }
 
     @Test
     void updateFilmBorderDescription() {
         String nameBorder = nameBeforeBorder + "1";
         Film longNamedFilm = DefaultFilm.builder().id(1).description(nameBorder).build();
-        Film addedFilm = filmController.addFilm(longNamedFilm);
-        Assertions.assertEquals(longNamedFilm, addedFilm);
+        ValidateService.validate(longNamedFilm);
     }
 
     /**
@@ -77,21 +74,19 @@ class FilmControllerTest {
     void addOldFilm() {
         Film oldFilm = DefaultFilm.builder().releaseDate(borderDate.minusDays(1)).build();
 
-        assertThrows(ValidationException.class, () -> filmController.addFilm(oldFilm));
+        assertThrows(ValidationException.class, () -> ValidateService.validate(oldFilm));
     }
 
     @Test
     void addOldBeforeBorder() {
         Film oldFilm = DefaultFilm.builder().releaseDate(borderDate.plusDays(1)).build();
-        Film addedFilm = filmController.addFilm(oldFilm);
-        Assertions.assertEquals(oldFilm, addedFilm);
+        ValidateService.validate(oldFilm);
     }
 
     @Test
     void addOldBorder() {
         Film oldFilm = DefaultFilm.builder().releaseDate(borderDate).build();
-        Film addedFilm = filmController.addFilm(oldFilm);
-        Assertions.assertEquals(oldFilm, addedFilm);
+        ValidateService.validate(oldFilm);
     }
 
     /**
@@ -100,7 +95,6 @@ class FilmControllerTest {
     @Test
     void addBadDuration() {
         Film negativeFilm = DefaultFilm.builder().duration(-15).build();
-
-        assertThrows(ValidationException.class, () -> filmController.addFilm(negativeFilm));
+        assertThrows(ValidationException.class, () -> ValidateService.validate(negativeFilm));
     }
 }

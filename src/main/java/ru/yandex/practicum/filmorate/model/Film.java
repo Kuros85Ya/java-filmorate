@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Data
 public class Film {
-    public Integer id;
+    public Long id;
     @NotNull
     public String name;
     @NotNull
