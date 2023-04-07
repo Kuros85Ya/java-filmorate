@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.Controller;
+package ru.yandex.practicum.filmorate;
 
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +15,7 @@ import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserControllerTest {
+class UserValidationTest {
 
     @EqualsAndHashCode(callSuper = true)
     @Data

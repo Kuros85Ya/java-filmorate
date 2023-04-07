@@ -13,7 +13,7 @@ import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FilmControllerTest {
+class FilmValidationTest {
 
     private final String nameBeforeBorder = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
     private final LocalDate borderDate = LocalDate.of(1895, Month.DECEMBER, 28);
