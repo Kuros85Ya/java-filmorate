@@ -22,7 +22,7 @@ class FilmValidationTest {
     @Data
     @Builder
     public static class DefaultFilm extends Film {
-        public Integer id;
+        public Long id;
         @Builder.Default
         public String name = "Default Name";
         @Builder.Default
@@ -38,9 +38,8 @@ class FilmValidationTest {
      */
     @Test
     void addEmptyNamedFilm() {
-        Film emptyNamed = DefaultFilm.builder().id(1).name("").build();
-
-        assertThrows(NullPointerException.class, () -> ValidateService.validate(emptyNamed));
+        Film emptyNamed = DefaultFilm.builder().id(1L).name("").build();
+        assertThrows(ValidationException.class, () -> ValidateService.validate(emptyNamed));
     }
 
     /**
@@ -48,14 +47,14 @@ class FilmValidationTest {
      */
     @Test
     void updateFilmShorterDescription() {
-        Film longNamedFilm = DefaultFilm.builder().id(1).description(nameBeforeBorder).build();
+        Film longNamedFilm = DefaultFilm.builder().id(1L).description(nameBeforeBorder).build();
         ValidateService.validate(longNamedFilm);
     }
 
     @Test
     void updateFilmLongerDesription() {
         String nameAfterBorder = nameBeforeBorder + "12";
-        Film longNamedFilm = DefaultFilm.builder().id(1).description(nameAfterBorder).build();
+        Film longNamedFilm = DefaultFilm.builder().id(1L).description(nameAfterBorder).build();
 
         assertThrows(ValidationException.class, () -> ValidateService.validate(longNamedFilm));
     }
@@ -63,7 +62,7 @@ class FilmValidationTest {
     @Test
     void updateFilmBorderDescription() {
         String nameBorder = nameBeforeBorder + "1";
-        Film longNamedFilm = DefaultFilm.builder().id(1).description(nameBorder).build();
+        Film longNamedFilm = DefaultFilm.builder().id(1L).description(nameBorder).build();
         ValidateService.validate(longNamedFilm);
     }
 

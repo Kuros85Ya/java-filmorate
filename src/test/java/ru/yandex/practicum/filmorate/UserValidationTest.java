@@ -22,7 +22,7 @@ class UserValidationTest {
     @Builder
     public static class DefaultUser extends User {
 
-        public Integer id;
+        public Long id;
         @Email
         @Builder.Default
         public String email = "mail@mail.com";
@@ -39,13 +39,13 @@ class UserValidationTest {
      */
     @Test
     void addWrongEmailUser() {
-        User wrongEmail = DefaultUser.builder().id(1).email("mail.mail").build();
+        User wrongEmail = DefaultUser.builder().id(1L).email("mail.mail").build();
         assertThrows(ValidationException.class, () -> ValidateService.validate(wrongEmail));
     }
 
     @Test
     void addEmptyEmailUser() {
-        User wrongEmail = DefaultUser.builder().id(1).email("").build();
+        User wrongEmail = DefaultUser.builder().id(1L).email("").build();
         assertThrows(ValidationException.class, () -> ValidateService.validate(wrongEmail));
     }
 
@@ -54,13 +54,13 @@ class UserValidationTest {
      */
     @Test
     void addEmptyLoginUser() {
-        User wrongLogin = DefaultUser.builder().id(1).login("").build();
+        User wrongLogin = DefaultUser.builder().id(1L).login("").build();
         assertThrows(ValidationException.class, () -> ValidateService.validate(wrongLogin));
     }
 
     @Test
     void addWrongLoginUser() {
-        User wrongLogin = DefaultUser.builder().id(1).login("asdf asdf").build();
+        User wrongLogin = DefaultUser.builder().id(1L).login("asdf asdf").build();
         assertThrows(ValidationException.class, () -> ValidateService.validate(wrongLogin));
     }
 
@@ -69,9 +69,9 @@ class UserValidationTest {
      */
     @Test
     void addNoNameUser() {
-        User noNameUser = DefaultUser.builder().id(1).name(null).build();
+        User noNameUser = DefaultUser.builder().id(1L).name(null).build();
         User user = ValidateService.validate(noNameUser);
-        Assertions.assertEquals(DefaultUser.builder().id(1).name(noNameUser.getLogin()).build(), user);
+        Assertions.assertEquals(DefaultUser.builder().id(1L).name(noNameUser.getLogin()).build(), user);
     }
 
     /**
@@ -79,7 +79,7 @@ class UserValidationTest {
      */
     @Test
     void addWrongBirthdateUser() {
-        User wrongBirthday = DefaultUser.builder().id(1).birthday(LocalDate.now().plusDays(1)).build();
+        User wrongBirthday = DefaultUser.builder().id(1L).birthday(LocalDate.now().plusDays(1)).build();
         assertThrows(ValidationException.class, () -> ValidateService.validate(wrongBirthday));
     }
 }
