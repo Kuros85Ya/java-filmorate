@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.Controller;
+package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 public class UserController {
 
-    UserRepository repository = new UserRepository();
+    private final UserRepository repository = new UserRepository();
 
     /**
      * Получение всех фильмов.

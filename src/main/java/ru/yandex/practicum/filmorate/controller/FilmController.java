@@ -1,9 +1,9 @@
-package ru.yandex.practicum.filmorate.Controller;
+package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dao.FilmRepository;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @Slf4j
 public class FilmController {
-    FilmRepository repository = new FilmRepository();
+    private final FilmRepository repository = new FilmRepository();
 
     /**
      * Получение всех фильмов.
@@ -46,5 +46,6 @@ public class FilmController {
         repository.update(film);
         log.info("Изменен фильм с id {}", film.getId());
         return film;
+
     }
 }
