@@ -40,7 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getFilm(Long id) {
-        if (films.get(id) == null) throw new NoSuchElementException();
+        if (films.get(id) == null) throw new NoSuchElementException("Фильма с id " + id + "не существует");
         return films.get(id);
     }
 }

@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.ValidateService;
@@ -39,12 +38,21 @@ public class FilmController {
     }
 
     /**
+     * Получение фильма.
+     */
+    @GetMapping("/films/{id}")
+    public Film getFilm(@PathVariable Long id) {
+        log.info("Запрошен фильм + " + id);
+        return filmStorage.getFilm(id);
+    }
+
+    /**
      * Получение самых популярных по лайкам фильмов.
      */
-    @GetMapping("/films/popular?count={count}")
-    public List<Film> getMostLikedMovies(@PathVariable int count) {
+    @GetMapping("/films/popular")
+    public List<Film> getMostLikedMovies(@RequestParam(defaultValue = "10") String count) {
         log.info("Запрошены самые популярные фильмы");
-        return service.getMostPopularMovies(count);
+        return service.getMostPopularMovies(Integer.parseInt(count));
     }
 
     /**
@@ -64,8 +72,6 @@ public class FilmController {
     @SneakyThrows
     @PutMapping(value = "/films")
     public Film updateFilm(@Valid @RequestBody Film film) {
-        if (!filmStorage.getFilms().containsKey(film.getId()))
-            throw new ValidationException("Фильма с id " + film.getId() + " не существует");
         ValidateService.validate(film);
         filmStorage.update(film);
         log.info("Изменен фильм с id {}", film.getId());
@@ -79,9 +85,6 @@ public class FilmController {
     public void likeFilm(@PathVariable Long acceptorId, @PathVariable Long initiatorId) {
         service.addLike(userStorage.getUser(initiatorId), filmStorage.getFilm(acceptorId));
         log.info("Юзер " + initiatorId + " лайкнул фильм " + acceptorId);
-        //if (!repository.getFilms().containsKey(film.getId())) throw new ValidationException("Фильма с id " + film.getId() + " не существует");
-        //ValidateService.validate(film);
-        //repository.update(film);
     }
 
     /**
@@ -91,8 +94,5 @@ public class FilmController {
     public void removeLike(@PathVariable Long acceptorId, @PathVariable Long initiatorId) {
         service.removeLike(userStorage.getUser(initiatorId), filmStorage.getFilm(acceptorId));
         log.info("Юзер " + initiatorId + " убрал лайк у фильма " + acceptorId);
-        //if (!repository.getFilms().containsKey(film.getId())) throw new ValidationException("Фильма с id " + film.getId() + " не существует");
-        //ValidateService.validate(film);
-        //repository.update(film);
     }
 }

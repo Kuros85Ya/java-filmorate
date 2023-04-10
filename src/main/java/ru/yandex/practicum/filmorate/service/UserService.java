@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,12 +41,11 @@ public class UserService {
         if (initiator.getFriends() == null || acceptor.getFriends() == null) {
             return new ArrayList<>();
         } else {
+            Set<Long> intersection = new HashSet<>(initiator.getFriends());
+            Set<Long> acceptorFriendsCopy = new HashSet<>(acceptor.getFriends());
+            intersection.retainAll(acceptorFriendsCopy);
 
-            Set<Long> initiatorFriends = initiator.getFriends();
-            Set<Long> acceptorFriends = acceptor.getFriends();
-            initiatorFriends.retainAll(acceptorFriends);
-
-            return initiatorFriends.stream().map(storage::getUser).collect(Collectors.toList());
+            return intersection.stream().map(storage::getUser).collect(Collectors.toList());
         }
     }
 }
