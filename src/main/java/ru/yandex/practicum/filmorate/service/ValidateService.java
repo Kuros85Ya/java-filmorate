@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,8 +11,10 @@ import java.time.Month;
 
 @Component
 public class ValidateService {
+    @SneakyThrows
     public static void validate(Film film) {
-        if ((film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28)))) throw new ValidationException("Film not valid");
+        if ((film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))))
+            throw new ValidationException("Film not valid");
     }
 
     public static User validate(User user) {

@@ -1,14 +1,14 @@
-package ru.yandex.practicum.filmorate.dao;
+package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 
 @Component
-public class UserRepository {
+public class InMemoryUserStorage implements UserStorage {
     private final HashMap<Long, User> users = new HashMap<>();
 
     private long generatorId;
@@ -17,19 +17,29 @@ public class UserRepository {
         return ++generatorId;
     }
 
+    @Override
     public void save(User user) {
         User validatedUser = ValidateService.validate(user);
         user.setId(generateId());
         users.put(user.getId(), validatedUser);
     }
 
+    @Override
+    public User getUser(Long id) {
+        if (users.get(id) == null) throw new NoSuchElementException("Пользователя с id " + id + " не существует");
+        return users.get(id);
+    }
+
+    @Override
     public void update(User user) {
-        if (!users.containsKey(user.getId()))
-            throw new ValidationException("Юзера с id " + user.getId() + " не существует");
+        if (!users.containsKey(user.getId())) {
+            throw new NoSuchElementException("Юзера с id " + user.getId() + " не существует");
+        }
         User validatedUser = ValidateService.validate(user);
         users.put(validatedUser.getId(), user);
     }
 
+    @Override
     public HashMap<Long, User> getUsers() {
         return users;
     }
