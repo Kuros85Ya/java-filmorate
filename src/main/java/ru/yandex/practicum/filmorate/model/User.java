@@ -4,6 +4,8 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
@@ -17,4 +19,6 @@ public class User {
     @NotNull
     @Past
     public LocalDate birthday;
+    public Set<Long> friends = new HashSet<>();
+    public Set<Long> likedMovies = new HashSet<>();
 }
