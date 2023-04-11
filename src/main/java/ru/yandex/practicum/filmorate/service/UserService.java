@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,14 +37,10 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(User initiator, User acceptor) {
-        if (initiator.getFriends() == null || acceptor.getFriends() == null) {
-            return new ArrayList<>();
-        } else {
-            Set<Long> intersection = new HashSet<>(initiator.getFriends());
-            Set<Long> acceptorFriendsCopy = new HashSet<>(acceptor.getFriends());
-            intersection.retainAll(acceptorFriendsCopy);
+        Set<Long> intersection = new HashSet<>(initiator.getFriends());
+        Set<Long> acceptorFriendsCopy = new HashSet<>(acceptor.getFriends());
+        intersection.retainAll(acceptorFriendsCopy);
 
-            return intersection.stream().map(storage::getUser).collect(Collectors.toList());
-        }
+        return intersection.stream().map(storage::getUser).collect(Collectors.toList());
     }
 }

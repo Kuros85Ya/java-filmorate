@@ -23,10 +23,4 @@ public class ErrorHandler {
     public Map<String, String> handleNotFoundException(final NoSuchElementException e) {
         return Map.of("Искомый элемент не найден", e.getMessage());
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleException(final UnknownError e) {
-        return Map.of("Произошла неизвестная ошибка при обработке запроса", e.getMessage());
-    }
 }

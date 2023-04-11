@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
+@RequestMapping(value = "/films")
 public class FilmController {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
@@ -31,7 +32,7 @@ public class FilmController {
     /**
      * Получение всех фильмов.
      */
-    @GetMapping("/films")
+    @GetMapping
     public List<Film> findAll() {
         log.info("Текущее количество фильмов: {}", filmStorage.getFilms().size());
         return new ArrayList<>(filmStorage.getFilms().values());
@@ -40,7 +41,7 @@ public class FilmController {
     /**
      * Получение фильма.
      */
-    @GetMapping("/films/{id}")
+    @GetMapping("/{id}")
     public Film getFilm(@PathVariable Long id) {
         log.info("Запрошен фильм + " + id);
         return filmStorage.getFilm(id);
@@ -49,7 +50,7 @@ public class FilmController {
     /**
      * Получение самых популярных по лайкам фильмов.
      */
-    @GetMapping("/films/popular")
+    @GetMapping("/popular")
     public List<Film> getMostLikedMovies(@RequestParam(defaultValue = "10") String count) {
         log.info("Запрошены самые популярные фильмы");
         return service.getMostPopularMovies(Integer.parseInt(count));
@@ -58,7 +59,7 @@ public class FilmController {
     /**
      * Добавление фильма
      */
-    @PostMapping(value = "/films")
+    @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         log.info("Пытаемся добавить фильм {}", film);
         filmStorage.save(film);
@@ -70,7 +71,7 @@ public class FilmController {
      * Обновление фильма
      */
     @SneakyThrows
-    @PutMapping(value = "/films")
+    @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         ValidateService.validate(film);
         filmStorage.update(film);
@@ -81,7 +82,7 @@ public class FilmController {
     /**
      * Добавление лайка к фильму
      */
-    @PutMapping(value = "/films/{acceptorId}/like/{initiatorId}")
+    @PutMapping(value = "/{acceptorId}/like/{initiatorId}")
     public void likeFilm(@PathVariable Long acceptorId, @PathVariable Long initiatorId) {
         service.addLike(userStorage.getUser(initiatorId), filmStorage.getFilm(acceptorId));
         log.info("Юзер " + initiatorId + " лайкнул фильм " + acceptorId);
@@ -90,7 +91,7 @@ public class FilmController {
     /**
      * Удаление лайка у фильма
      */
-    @DeleteMapping(value = "/films/{acceptorId}/like/{initiatorId}")
+    @DeleteMapping(value = "/{acceptorId}/like/{initiatorId}")
     public void removeLike(@PathVariable Long acceptorId, @PathVariable Long initiatorId) {
         service.removeLike(userStorage.getUser(initiatorId), filmStorage.getFilm(acceptorId));
         log.info("Юзер " + initiatorId + " убрал лайк у фильма " + acceptorId);
