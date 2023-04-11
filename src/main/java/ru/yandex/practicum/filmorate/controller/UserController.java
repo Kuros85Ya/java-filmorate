@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping( value = "/users")
+@RequestMapping(value = "/users")
 public class UserController {
 
     private final UserStorage repository;
