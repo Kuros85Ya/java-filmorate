@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -21,7 +22,7 @@ public class UserController {
     private final UserService service;
 
     @Autowired
-    public UserController(UserStorage storage, UserService service) {
+    public UserController(@Qualifier("UserDbStorage") UserStorage storage, @Qualifier("userDbService") UserService service) {
         this.repository = storage;
         this.service = service;
     }
@@ -68,9 +69,9 @@ public class UserController {
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         log.info("Пытаемся добавить юзера {}", user);
-        repository.save(user);
+        User addedUser = repository.save(user);
         log.info("Успешно добавлен {}", user);
-        return user;
+        return addedUser;
     }
 
     /**
