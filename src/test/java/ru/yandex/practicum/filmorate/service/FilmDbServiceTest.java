@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -33,8 +32,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmDbServiceTest {
     private final FilmDbService filmService;
     private final FilmDbStorage filmStorage;
-    private final UserDbService userService;
-    private final UserDbStorage userStorage;
 
     Rating defaultRating = Rating.builder()
             .id(1L)
@@ -42,14 +39,14 @@ class FilmDbServiceTest {
             .build();
 
     User defaultUser = User.builder()
-            .id(1L)
+            .id(0L)
             .email("mail@mail.com")
             .login("testUser")
             .name(null)
             .birthday(LocalDate.of(1985, Month.AUGUST, 21))
             .build();
     Film defaultFilm = Film.builder()
-            .id(1L)
+            .id(0L)
             .name("Default Name")
             .description("Default description")
             .duration(120)
@@ -62,7 +59,7 @@ class FilmDbServiceTest {
     @Test
     void save() {
         Film nonSavableFilm = Film.builder()
-                .id(2L)
+                .id(1L)
                 .build();
 
         assertThrows(ValidationException.class, () -> filmStorage.save(nonSavableFilm));
@@ -70,11 +67,11 @@ class FilmDbServiceTest {
 
     @Test
     void getFilm() {
-        Film film = filmStorage.getFilm(1L);
+        Film film = filmStorage.getFilm(0L);
         assertThat(Optional.ofNullable(film))
                 .isPresent()
                 .hasValueSatisfying(it ->
-                        assertThat(it).hasFieldOrPropertyWithValue("id", 1L)
+                        assertThat(it).hasFieldOrPropertyWithValue("id", 0L)
                                 .hasFieldOrPropertyWithValue("name", "Default Name")
                                 .hasFieldOrPropertyWithValue("description", "Default description")
                                 .hasFieldOrPropertyWithValue("duration", 120)
@@ -86,12 +83,12 @@ class FilmDbServiceTest {
     @Test
     void update() {
         Rating updatedRating = Rating.builder()
-                .id(2L)
-                .name("PG")
+                .id(1L)
+                .name("G")
                 .build();
 
         Film updatedFilm = Film.builder()
-                .id(1L)
+                .id(0L)
                 .name("Updated Name")
                 .description("Updated description")
                 .duration(122)
@@ -105,7 +102,7 @@ class FilmDbServiceTest {
         assertThat(Optional.ofNullable(testFilm))
                 .isPresent()
                 .hasValueSatisfying(it ->
-                        assertThat(it).hasFieldOrPropertyWithValue("id", 1L)
+                        assertThat(it).hasFieldOrPropertyWithValue("id", 0L)
                                 .hasFieldOrPropertyWithValue("name", "Updated Name")
                                 .hasFieldOrPropertyWithValue("description", "Updated description")
                                 .hasFieldOrPropertyWithValue("duration", 122)
@@ -118,10 +115,10 @@ class FilmDbServiceTest {
     void getFilms() {
         HashMap<Long, Film> films = filmStorage.getFilms();
         Assertions.assertEquals(1, films.size());
-        assertThat(Optional.ofNullable(films.get(1L)))
+        assertThat(Optional.ofNullable(films.get(0L)))
                 .isPresent()
                 .hasValueSatisfying(it ->
-                        assertThat(it).hasFieldOrPropertyWithValue("id", 1L)
+                        assertThat(it).hasFieldOrPropertyWithValue("id", 0L)
                                 .hasFieldOrPropertyWithValue("name", "Default Name")
                                 .hasFieldOrPropertyWithValue("description", "Default description")
                                 .hasFieldOrPropertyWithValue("duration", 120)
@@ -147,7 +144,7 @@ class FilmDbServiceTest {
     @Test
     void addLikeToNonExistingUser() {
         User nonSavedUser = User.builder()
-                .id(2L)
+                .id(1L)
                 .build();
 
         assertThrows(NoSuchElementException.class, () -> filmService.addLike(nonSavedUser, defaultFilm));
@@ -171,7 +168,7 @@ class FilmDbServiceTest {
         assertThat(Optional.ofNullable(films.get(0)))
                 .isPresent()
                 .hasValueSatisfying(it ->
-                        assertThat(it).hasFieldOrPropertyWithValue("id", 1L)
+                        assertThat(it).hasFieldOrPropertyWithValue("id", 0L)
                                 .hasFieldOrPropertyWithValue("name", "Default Name")
                                 .hasFieldOrPropertyWithValue("description", "Default description")
                                 .hasFieldOrPropertyWithValue("duration", 120)
@@ -182,23 +179,32 @@ class FilmDbServiceTest {
 
     @Test
     void getFilmGenres() {
-        filmService.getFilmGenres(1L);
+        filmService.getFilmGenres(0L);
     }
 
     @Test
     void getAllGenres() {
         List<Genre> genres = filmService.getAllGenres();
+        Assertions.assertEquals(6, genres.size());
+        Assertions.assertEquals(genres.get(0), Genre.builder().id(1L).name("Комедия").build());
     }
 
     @Test
     void getGenre() {
+        Genre genre = filmService.getGenre(1L);
+        Assertions.assertEquals(Genre.builder().id(1L).name("Комедия").build(), genre);
     }
 
     @Test
     void getAllAgeRatings() {
+        List<Rating> ratings = filmService.getAllAgeRatings();
+        Assertions.assertEquals(5, ratings.size());
+        Assertions.assertEquals(ratings.get(0), Rating.builder().id(1L).name("G").build());
     }
 
     @Test
     void getAgeRating() {
+        Rating rating = filmService.getAgeRating(1L);
+        Assertions.assertEquals(rating, Rating.builder().id(1L).name("G").build());
     }
 }

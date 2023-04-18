@@ -81,7 +81,7 @@ public class FilmDbService implements FilmService {
             String sqlQuery = "select ID, NAME from GENRE WHERE ID = ?";
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenre, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new NoSuchElementException("Не найден фильм с таким идентификатором: " + e.getMessage());
+            throw new NoSuchElementException("Не найден жанр с таким идентификатором: " + e.getMessage());
         }
     }
 
@@ -97,7 +97,7 @@ public class FilmDbService implements FilmService {
             String sqlQuery = "select ID, NAME from RATING WHERE ID = ?";
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new NoSuchElementException("Не найден фильм с таким идентификатором: " + e.getMessage());
+            throw new NoSuchElementException("Не возрастной рейтинг с таким идентификатором: " + e.getMessage());
         }
     }
 

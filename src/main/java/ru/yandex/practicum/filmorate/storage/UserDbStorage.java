@@ -40,6 +40,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void update(User user) {
+        ValidateService.validate(user);
         String sqlQuery = "update FILMORATE_USER set " +
                 "NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? " +
                 "where id = ?";

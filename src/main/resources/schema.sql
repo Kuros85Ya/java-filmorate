@@ -42,12 +42,12 @@ alter table FILM
 
 create table IF NOT EXISTS FILMORATE_USER
 (
-    id        LONG auto_increment,
+    id        IDENTITY NOT NULL PRIMARY KEY,
     login     text,
     name      text,
     email     text,
     birthday date not null,
-    constraint "USER_pk"
+    constraint user_id
         primary key (id)
 );
 
@@ -61,7 +61,7 @@ comment on column FILMORATE_USER.birthday is 'Дата рождения поль
 
 create table IF NOT EXISTS genre
 (
-    id   INTEGER,
+    id   IDENTITY NOT NULL PRIMARY KEY,
     name varchar,
     constraint genre_pk
         primary key (id)
