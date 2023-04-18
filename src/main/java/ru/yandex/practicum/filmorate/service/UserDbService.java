@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class UserDbService implements UserService {
@@ -29,16 +30,27 @@ public class UserDbService implements UserService {
     @Override
     public void removeFriend(User initiator, User acceptor) {
         String sqlQuery = "delete from FRIEND where INITIATOR_ID = ? AND ACCEPTOR_ID = ?";
-        jdbcTemplate.update(sqlQuery,
+        int rowsChanged = jdbcTemplate.update(sqlQuery,
                 initiator.getId(),
                 acceptor.getId());
+
+        if (rowsChanged == 0) {
+            throw new NoSuchElementException("Не найден друг для удаления");
+        }
     }
 
     @Override
     public List<User> getCommonFriends(User initiator, User acceptor) {
         String sqlQuery = "SELECT ID, NAME, LOGIN, EMAIL, BIRTHDAY FROM FILMORATE_USER WHERE ID IN" +
-                "(SELECT ACCEPTOR_ID from FRIEND WHERE INITIATOR_ID = ? AND INITIATOR_ID IN (SELECT ACCEPTOR_ID FROM FRIEND WHERE INITIATOR_ID = ?))";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
+                "(SELECT ACCEPTOR_ID from FRIEND WHERE INITIATOR_ID = ? AND ACCEPTOR_ID IN (SELECT ACCEPTOR_ID FROM FRIEND WHERE INITIATOR_ID = ?))";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, initiator.getId(), acceptor.getId());
+    }
+
+    @Override
+    public List<User> getFriends(User initiator) {
+        String sqlQuery = "SELECT ID, NAME, LOGIN, EMAIL, BIRTHDAY FROM FILMORATE_USER WHERE ID IN" +
+                "(SELECT ACCEPTOR_ID from FRIEND WHERE INITIATOR_ID = ?)";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, initiator.getId());
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {

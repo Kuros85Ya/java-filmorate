@@ -7,7 +7,7 @@ import java.util.HashMap;
 public interface FilmStorage {
     Film save(Film film);
 
-    void update(Film film);
+    Film update(Film film);
 
     HashMap<Long, Film> getFilms();
 

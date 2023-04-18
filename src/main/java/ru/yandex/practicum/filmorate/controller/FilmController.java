@@ -77,9 +77,9 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         ValidateService.validate(film);
-        filmStorage.update(film);
+        Film finalFilm = filmStorage.update(film);
         log.info("Изменен фильм с id {}", film.getId());
-        return film;
+        return finalFilm;
     }
 
     /**

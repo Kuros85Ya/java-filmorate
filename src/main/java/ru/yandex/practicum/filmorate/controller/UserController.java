@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -42,7 +41,8 @@ public class UserController {
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Long id) {
         log.info("Запрошен список друзей пользователя {}", id);
-        return repository.getUser(id).getFriends().stream().map(repository::getUser).collect(Collectors.toList());
+        User initiator =  repository.getUser(id);
+        return service.getFriends(initiator);
     }
 
     /**

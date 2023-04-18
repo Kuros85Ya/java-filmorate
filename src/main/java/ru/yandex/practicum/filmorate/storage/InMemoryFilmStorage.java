@@ -28,10 +28,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     @SneakyThrows
-    public void update(Film film) {
+    public Film update(Film film) {
         if (!films.containsKey(film.getId()))
             throw new NoSuchElementException("Фильма с id " + film.getId() + " не существует");
         films.put(film.getId(), film);
+        return film;
     }
 
     @Override

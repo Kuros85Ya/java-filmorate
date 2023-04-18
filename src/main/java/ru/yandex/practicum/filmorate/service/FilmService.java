@@ -15,9 +15,12 @@ public interface FilmService {
     List<Film> getMostPopularMovies(int numberOfMovies);
 
     List<Genre> getAllGenres();
+
     List<Genre> getFilmGenres(Long id);
 
-    Rating getFilmAgeRating(Long id);
+    Genre getGenre(Long id);
 
     List<Rating> getAllAgeRatings();
+
+    Rating getAgeRating(Long id);
 }

@@ -36,6 +36,6 @@ public class RatingController {
     @GetMapping("/{id}")
     public Rating getSingleRating(@PathVariable Long id) {
         log.info("Запрошен возрастной рейтинг + " + id);
-        return service.getFilmAgeRating(id);
+        return service.getAgeRating(id);
     }
 }

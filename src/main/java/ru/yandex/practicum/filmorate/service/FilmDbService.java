@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class FilmDbService implements FilmService {
@@ -26,28 +28,34 @@ public class FilmDbService implements FilmService {
         String sqlQuery = "insert into USER_FILM_LIKES (FILM_ID, USER_ID) " +
                 "values (?, ?)";
         jdbcTemplate.update(sqlQuery,
-                initiator.getId(),
-                acceptor.getId());
+                acceptor.getId(),
+                initiator.getId());
     }
 
     @Override
     public void removeLike(User initiator, Film acceptor) {
         String sqlQuery = "delete from USER_FILM_LIKES where USER_ID = ? AND FILM_ID = ?";
-        jdbcTemplate.update(sqlQuery,
+        int rowsChanged = jdbcTemplate.update(sqlQuery,
                 initiator.getId(),
                 acceptor.getId());
+        if (rowsChanged == 0) {
+            throw new NoSuchElementException("Не найден лайк для удаления");
+        }
     }
 
     @Override
     public List<Film> getMostPopularMovies(int numberOfMovies) {
 
-        String sqlQuery = "SELECT ID, NAME, DESCRIPTION, DURATION, RELEASE_DATE" +
-                " from FILM WHERE ID IN (SELECT FILM_ID FROM " +
-                "(SELECT FILM_ID, COUNT(*) FROM USER_FILM_LIKES " +
-                "GROUP BY FILM_ID " +
-                "ORDER BY 2 DESC " +
-                "LIMIT 10))";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
+        String sqlQuery = "select FILM.ID, FILM.NAME, DESCRIPTION, DURATION, RELEASE_DATE, RATING_ID, R.NAME as RATING_NAME, likes.LIKES " +
+                "                from FILM left join\n" +
+                "(SELECT FILM_ID, COUNT(*) as LIKES FROM USER_FILM_LIKES GROUP BY FILM_ID) likes " +
+                " on likes.FILM_ID = FILM.ID " +
+                " JOIN RATING R on R.ID = FILM.RATING_ID " +
+                " order by LIKES desc LIMIT ?;";
+
+        List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, numberOfMovies);
+        films.forEach(it -> it.setGenres(getFilmGenres(it.getId())));
+        return films;
     }
 
     @Override
@@ -63,15 +71,29 @@ public class FilmDbService implements FilmService {
     }
 
     @Override
-    public Rating getFilmAgeRating(Long id) {
-        String sqlQuery = "select ID, NAME from RATING WHERE ID IN (SELECT RATING_ID FROM FILM WHERE ID = ?)";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, id);
+    public Genre getGenre(Long id) {
+        try {
+            String sqlQuery = "select ID, NAME from GENRE WHERE ID = ?";
+            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenre, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NoSuchElementException("Не найден фильм с таким идентификатором: " + e.getMessage());
+        }
     }
 
     @Override
     public List<Rating> getAllAgeRatings() {
         String sqlQuery = "select ID, NAME from RATING";
         return jdbcTemplate.query(sqlQuery, this::mapRowToRating);
+    }
+
+    @Override
+    public Rating getAgeRating(Long id) {
+        try {
+            String sqlQuery = "select ID, NAME from RATING WHERE ID = ?";
+            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NoSuchElementException("Не найден фильм с таким идентификатором: " + e.getMessage());
+        }
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
@@ -81,6 +103,7 @@ public class FilmDbService implements FilmService {
                 .description(resultSet.getString("description"))
                 .duration(resultSet.getInt("duration"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
+                .mpa(Rating.builder().id(resultSet.getLong("rating_id")).name(resultSet.getString("rating_name")).build())
                 .build();
     }
 

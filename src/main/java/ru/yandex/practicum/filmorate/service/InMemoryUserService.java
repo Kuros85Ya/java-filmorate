@@ -44,4 +44,9 @@ public class InMemoryUserService implements UserService {
 
         return intersection.stream().map(storage::getUser).collect(Collectors.toList());
     }
+
+    @Override
+    public List<User> getFriends(User initiator) {
+        throw new  UnsupportedOperationException("Данный метод используется только при работе с БД");
+    }
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,13 +41,18 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void update(User user) {
         String sqlQuery = "update FILMORATE_USER set " +
-                "NAME = ?, LOGIN = ?, EMAIL = ? " +
+                "NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? " +
                 "where id = ?";
-        jdbcTemplate.update(sqlQuery
+        int rowsChanged = jdbcTemplate.update(sqlQuery
                 , user.getName()
                 , user.getLogin()
                 , user.getEmail()
+                , user.getBirthday()
                 , user.getId());
+
+        if (rowsChanged == 0) {
+            throw new NoSuchElementException("Не найден пользователь для обновления");
+        }
     }
 
     @Override
@@ -71,9 +78,13 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUser(Long id) {
-        String sqlQuery = "select id, NAME, LOGIN, EMAIL, BIRTHDAY " +
-                "from FILMORATE_USER where id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+        try {
+            String sqlQuery = "select id, NAME, LOGIN, EMAIL, BIRTHDAY " +
+                    "from FILMORATE_USER where id = ?";
+            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NoSuchElementException("Не найден пользователь с таким идентификатором: " + e.getMessage());
+        }
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {

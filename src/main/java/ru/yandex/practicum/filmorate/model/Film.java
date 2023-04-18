@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -13,7 +14,6 @@ public class Film {
     public Long id;
     @NotEmpty
     public String name;
-    public String rating;
     @NotNull
     @Size(max = 200)
     public String description;
@@ -23,4 +23,6 @@ public class Film {
     @NotNull
     public LocalDate releaseDate;
     public Set<Long> userLiked;
+    public Rating mpa;
+    public List<Genre> genres;
 }

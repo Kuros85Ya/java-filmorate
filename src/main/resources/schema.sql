@@ -1,6 +1,6 @@
 create table IF NOT EXISTS film
 (
-    id           LONG auto_increment,
+    id           IDENTITY NOT NULL PRIMARY KEY,
     rating_id    LONG,
     name         varchar not null,
     description  text,

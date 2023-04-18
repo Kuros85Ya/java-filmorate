@@ -10,9 +10,7 @@ import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,12 +61,16 @@ public class InMemoryFilmService implements FilmService {
     }
 
     @Override
-    public Rating getFilmAgeRating(Long id) {
+    public Genre getGenre(Long id) {
+        throw new UnsupportedOperationException("Реализация метода существует только при работе с БД");    }
+
+    @Override
+    public List<Rating> getAllAgeRatings() {
         throw new UnsupportedOperationException("Реализация метода существует только при работе с БД");
     }
 
     @Override
-    public List<Rating> getAllAgeRatings() {
+    public Rating getAgeRating(Long id) {
         throw new UnsupportedOperationException("Реализация метода существует только при работе с БД");
     }
 }

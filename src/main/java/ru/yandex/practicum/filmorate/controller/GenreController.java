@@ -34,8 +34,8 @@ public class GenreController {
      * Получение конкретного жанра.
      */
     @GetMapping("/{id}")
-    public List<Genre> getSingleGenre(@PathVariable Long id) {
-        log.info("Запрошены жанры по фильму + " + id);
-        return service.getFilmGenres(id);
+    public Genre getGenre(@PathVariable Long id) {
+        log.info("Запрошен жанр + " + id);
+        return service.getGenre(id);
     }
 }
