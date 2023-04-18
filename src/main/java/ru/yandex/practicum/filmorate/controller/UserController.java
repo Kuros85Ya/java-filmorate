@@ -41,7 +41,7 @@ public class UserController {
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Long id) {
         log.info("Запрошен список друзей пользователя {}", id);
-        User initiator =  repository.getUser(id);
+        User initiator = repository.getUser(id);
         return service.getFriends(initiator);
     }
 

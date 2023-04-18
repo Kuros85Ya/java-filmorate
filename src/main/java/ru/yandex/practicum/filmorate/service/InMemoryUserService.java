@@ -47,6 +47,6 @@ public class InMemoryUserService implements UserService {
 
     @Override
     public List<User> getFriends(User initiator) {
-        throw new  UnsupportedOperationException("Данный метод используется только при работе с БД");
+        throw new UnsupportedOperationException("Данный метод используется только при работе с БД");
     }
 }

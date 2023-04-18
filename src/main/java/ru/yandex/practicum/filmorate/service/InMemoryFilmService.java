@@ -62,7 +62,8 @@ public class InMemoryFilmService implements FilmService {
 
     @Override
     public Genre getGenre(Long id) {
-        throw new UnsupportedOperationException("Реализация метода существует только при работе с БД");    }
+        throw new UnsupportedOperationException("Реализация метода существует только при работе с БД");
+    }
 
     @Override
     public List<Rating> getAllAgeRatings() {
