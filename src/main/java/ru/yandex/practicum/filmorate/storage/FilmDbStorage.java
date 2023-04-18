@@ -75,13 +75,7 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "update FILM set " +
                 "NAME = ?, DESCRIPTION = ?, DURATION = ?, RELEASE_DATE = ?, RATING_ID = ?" +
                 "where id = ?";
-        int rowsChanged = jdbcTemplate.update(sqlQuery
-                , film.getName()
-                , film.getDescription()
-                , film.getDuration()
-                , film.getReleaseDate()
-                , film.getMpa().getId()
-                , film.getId());
+        int rowsChanged = jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getDuration(), film.getReleaseDate(), film.getMpa().getId(), film.getId());
         if (rowsChanged == 0) {
             throw new NoSuchElementException("Не фильм для обновления");
         }
