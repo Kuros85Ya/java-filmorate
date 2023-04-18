@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -7,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
@@ -32,28 +34,33 @@ public class FilmDbStorage implements FilmStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @SneakyThrows
     @Override
     public Film save(Film film) {
-        ValidateService.validate(film);
+        try {
+            ValidateService.validate(film);
 
-        String sqlQuery = "insert into FILM(NAME, DESCRIPTION, DURATION, RELEASE_DATE, RATING_ID) " +
-                "values (?, ?, ?, ?, ?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
-            stmt.setString(1, film.getName());
-            stmt.setString(2, film.getDescription());
-            stmt.setInt(3, film.getDuration());
-            stmt.setDate(4, Date.valueOf(film.getReleaseDate()));
-            stmt.setLong(5, film.mpa.id);
-            return stmt;
-        }, keyHolder);
+            String sqlQuery = "insert into FILM(NAME, DESCRIPTION, DURATION, RELEASE_DATE, RATING_ID) " +
+                    "values (?, ?, ?, ?, ?)";
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
+                stmt.setString(1, film.getName());
+                stmt.setString(2, film.getDescription());
+                stmt.setInt(3, film.getDuration());
+                stmt.setDate(4, Date.valueOf(film.getReleaseDate()));
+                stmt.setLong(5, film.mpa.id);
+                return stmt;
+            }, keyHolder);
 
-        film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-        if (film.getGenres() != null) {
-            film.getGenres().forEach(it -> setFilmGenres(film.getId(), it.getId()));
+            film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+            if (film.getGenres() != null) {
+                film.getGenres().forEach(it -> setFilmGenres(film.getId(), it.getId()));
+            }
+            return film;
+        } catch (NullPointerException e) {
+            throw new ValidationException("Объект фильма не подходит для сохранения в базу " + e.getMessage());
         }
-        return film;
     }
 
     private void deleteFilmGenres(Long filmId) {
@@ -77,7 +84,7 @@ public class FilmDbStorage implements FilmStorage {
                 "where id = ?";
         int rowsChanged = jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getDuration(), film.getReleaseDate(), film.getMpa().getId(), film.getId());
         if (rowsChanged == 0) {
-            throw new NoSuchElementException("Не фильм для обновления");
+            throw new NoSuchElementException("Не найден фильм для обновления");
         }
         if (film.getGenres() == null) {
             deleteFilmGenres(film.getId());

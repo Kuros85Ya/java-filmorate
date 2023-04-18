@@ -23,6 +23,7 @@ public class Film {
     @NotNull
     public LocalDate releaseDate;
     public Set<Long> userLiked;
+    @NotNull
     public Rating mpa;
     public List<Genre> genres;
 }

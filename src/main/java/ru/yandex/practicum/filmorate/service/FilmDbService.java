@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -25,11 +26,15 @@ public class FilmDbService implements FilmService {
 
     @Override
     public void addLike(User initiator, Film acceptor) {
-        String sqlQuery = "insert into USER_FILM_LIKES (FILM_ID, USER_ID) " +
-                "values (?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                acceptor.getId(),
-                initiator.getId());
+        try {
+            String sqlQuery = "insert into USER_FILM_LIKES (FILM_ID, USER_ID) " +
+                    "values (?, ?)";
+            jdbcTemplate.update(sqlQuery,
+                    acceptor.getId(),
+                    initiator.getId());
+        } catch (DataIntegrityViolationException e) {
+            throw new NoSuchElementException("Либо акцептор, либо инициатор лайка не существуют: " + e.getMessage());
+        }
     }
 
     @Override
