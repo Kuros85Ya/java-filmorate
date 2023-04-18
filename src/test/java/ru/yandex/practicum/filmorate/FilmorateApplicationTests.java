@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -20,12 +22,20 @@ class FilmorateApplicationTests {
 
     @Test
     public void testFindUserById() {
+        User noNameUser = User.builder()
+                .email("mail@mail.com")
+                .login("testUser")
+                .name(null)
+                .birthday( LocalDate.of(1985, Month.AUGUST, 21))
+                .build();
+
+        userStorage.save(noNameUser);
 
         User user = userStorage.getUser(1L);
         assertThat(Optional.ofNullable(user))
                 .isPresent()
                 .hasValueSatisfying(it ->
-                        assertThat(it).hasFieldOrPropertyWithValue("id", 1)
+                        assertThat(it).hasFieldOrPropertyWithValue("id", 1L)
                 );
     }
 
