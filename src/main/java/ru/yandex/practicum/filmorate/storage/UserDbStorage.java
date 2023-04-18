@@ -43,12 +43,7 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "update FILMORATE_USER set " +
                 "NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? " +
                 "where id = ?";
-        int rowsChanged = jdbcTemplate.update(sqlQuery
-                , user.getName()
-                , user.getLogin()
-                , user.getEmail()
-                , user.getBirthday()
-                , user.getId());
+        int rowsChanged = jdbcTemplate.update(sqlQuery, user.getName(), user.getLogin(), user.getEmail(), user.getBirthday(), user.getId());
 
         if (rowsChanged == 0) {
             throw new NoSuchElementException("Не найден пользователь для обновления");
