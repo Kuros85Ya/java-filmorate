@@ -26,7 +26,7 @@ class FilmorateApplicationTests {
                 .email("mail@mail.com")
                 .login("testUser")
                 .name(null)
-                .birthday( LocalDate.of(1985, Month.AUGUST, 21))
+                .birthday(LocalDate.of(1985, Month.AUGUST, 21))
                 .build();
 
         userStorage.save(noNameUser);

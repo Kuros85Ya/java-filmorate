@@ -17,7 +17,7 @@ class FilmValidationTest {
 
     Film defaultFilm = Film.builder()
             .name("Default Name")
-            .description( "Default description")
+            .description("Default description")
             .duration(120)
             .releaseDate(LocalDate.of(2005, Month.APRIL, 12))
             .userLiked(new HashSet<>())

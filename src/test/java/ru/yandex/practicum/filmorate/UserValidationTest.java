@@ -15,7 +15,7 @@ class UserValidationTest {
             .email("mail@mail.com")
             .login("testUser")
             .name(null)
-            .birthday( LocalDate.of(1985, Month.AUGUST, 21))
+            .birthday(LocalDate.of(1985, Month.AUGUST, 21))
             .build();
 
     User finalUser = User.builder()
@@ -23,7 +23,7 @@ class UserValidationTest {
             .email("mail@mail.com")
             .login("testUser")
             .name("testUser")
-            .birthday( LocalDate.of(1985, Month.AUGUST, 21))
+            .birthday(LocalDate.of(1985, Month.AUGUST, 21))
             .build();
 
     /**
