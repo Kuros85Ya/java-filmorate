@@ -6,13 +6,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.mapper.FilmorateMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,15 +24,17 @@ import java.util.stream.Collectors;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final FilmorateMapper mapper;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, FilmorateMapper mapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.mapper = mapper;
     }
 
     @Override
     public HashMap<Long, User> getUsers() {
         String sqlQuery = "select id, NAME, LOGIN, EMAIL, BIRTHDAY from FILMORATE_USER";
-        List<User> users = jdbcTemplate.query(sqlQuery, this::mapRowToUser);
+        List<User> users = jdbcTemplate.query(sqlQuery, mapper::mapRowToUser);
         return (HashMap<Long, User>) users.stream()
                 .collect(Collectors.toMap(User::getId, Function.identity()));
     }
@@ -77,19 +78,9 @@ public class UserDbStorage implements UserStorage {
         try {
             String sqlQuery = "select id, NAME, LOGIN, EMAIL, BIRTHDAY " +
                     "from FILMORATE_USER where id = ?";
-            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+            return jdbcTemplate.queryForObject(sqlQuery, mapper::mapRowToUser, id);
         } catch (EmptyResultDataAccessException e) {
             throw new NoSuchElementException("Не найден пользователь с таким идентификатором: " + e.getMessage());
         }
-    }
-
-    private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
-        return User.builder()
-                .id(resultSet.getLong("id"))
-                .name(resultSet.getString("name"))
-                .login(resultSet.getString("login"))
-                .email(resultSet.getString("email"))
-                .birthday(resultSet.getDate("birthday").toLocalDate())
-                .build();
     }
 }

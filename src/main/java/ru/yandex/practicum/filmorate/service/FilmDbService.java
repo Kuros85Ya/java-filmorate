@@ -1,27 +1,32 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.mapper.FilmorateMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 public class FilmDbService implements FilmService {
     private final JdbcTemplate jdbcTemplate;
+    private final FilmStorage storage;
+    private final FilmorateMapper mapper;
 
     @Autowired
-    public FilmDbService(JdbcTemplate jdbcTemplate) {
+    public FilmDbService(JdbcTemplate jdbcTemplate, @Qualifier("FilmDbStorage") FilmStorage storage, FilmorateMapper mapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.storage = storage;
+        this.mapper = mapper;
     }
 
     @Override
@@ -58,28 +63,28 @@ public class FilmDbService implements FilmService {
                 " JOIN RATING R on R.ID = FILM.RATING_ID " +
                 " order by LIKES desc LIMIT ?;";
 
-        List<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, numberOfMovies);
-        films.forEach(it -> it.setGenres(getFilmGenres(it.getId())));
+        List<Film> films = jdbcTemplate.query(sqlQuery, mapper::mapRowToFilm, numberOfMovies);
+        storage.setFilmGenres(films);
         return films;
     }
 
     @Override
     public List<Genre> getFilmGenres(Long id) {
         String sqlQuery = "select ID, NAME from GENRE WHERE ID IN (SELECT GENRE_ID FROM FILM_GENRE WHERE FILM_ID = ?)";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToGenre, id);
+        return jdbcTemplate.query(sqlQuery, mapper::mapRowToGenre, id);
     }
 
     @Override
     public List<Genre> getAllGenres() {
         String sqlQuery = "select ID, NAME from GENRE";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToGenre);
+        return jdbcTemplate.query(sqlQuery, mapper::mapRowToGenre);
     }
 
     @Override
     public Genre getGenre(Long id) {
         try {
             String sqlQuery = "select ID, NAME from GENRE WHERE ID = ?";
-            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenre, id);
+            return jdbcTemplate.queryForObject(sqlQuery, mapper::mapRowToGenre, id);
         } catch (EmptyResultDataAccessException e) {
             throw new NoSuchElementException("Не найден жанр с таким идентификатором: " + e.getMessage());
         }
@@ -88,41 +93,16 @@ public class FilmDbService implements FilmService {
     @Override
     public List<Rating> getAllAgeRatings() {
         String sqlQuery = "select ID, NAME from RATING";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToRating);
+        return jdbcTemplate.query(sqlQuery, mapper::mapRowToRating);
     }
 
     @Override
     public Rating getAgeRating(Long id) {
         try {
             String sqlQuery = "select ID, NAME from RATING WHERE ID = ?";
-            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToRating, id);
+            return jdbcTemplate.queryForObject(sqlQuery, mapper::mapRowToRating, id);
         } catch (EmptyResultDataAccessException e) {
             throw new NoSuchElementException("Не возрастной рейтинг с таким идентификатором: " + e.getMessage());
         }
-    }
-
-    private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        return Film.builder()
-                .id(resultSet.getLong("id"))
-                .name(resultSet.getString("name"))
-                .description(resultSet.getString("description"))
-                .duration(resultSet.getInt("duration"))
-                .releaseDate(resultSet.getDate("release_date").toLocalDate())
-                .mpa(Rating.builder().id(resultSet.getLong("rating_id")).name(resultSet.getString("rating_name")).build())
-                .build();
-    }
-
-    private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
-        return Genre.builder()
-                .id(resultSet.getLong("id"))
-                .name(resultSet.getString("name"))
-                .build();
-    }
-
-    private Rating mapRowToRating(ResultSet resultSet, int rowNum) throws SQLException {
-        return Rating.builder()
-                .id(resultSet.getLong("id"))
-                .name(resultSet.getString("name"))
-                .build();
     }
 }

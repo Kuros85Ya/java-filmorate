@@ -2,10 +2,9 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.mapper.FilmorateMapper;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -13,9 +12,11 @@ import java.util.NoSuchElementException;
 public class UserDbService implements UserService {
 
     private final JdbcTemplate jdbcTemplate;
+    private final FilmorateMapper mapper;
 
-    public UserDbService(JdbcTemplate jdbcTemplate) {
+    public UserDbService(JdbcTemplate jdbcTemplate, FilmorateMapper mapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.mapper = mapper;
     }
 
     @Override
@@ -43,23 +44,13 @@ public class UserDbService implements UserService {
     public List<User> getCommonFriends(User initiator, User acceptor) {
         String sqlQuery = "SELECT ID, NAME, LOGIN, EMAIL, BIRTHDAY FROM FILMORATE_USER WHERE ID IN" +
                 "(SELECT ACCEPTOR_ID from FRIEND WHERE INITIATOR_ID = ? AND ACCEPTOR_ID IN (SELECT ACCEPTOR_ID FROM FRIEND WHERE INITIATOR_ID = ?))";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, initiator.getId(), acceptor.getId());
+        return jdbcTemplate.query(sqlQuery, mapper::mapRowToUser, initiator.getId(), acceptor.getId());
     }
 
     @Override
     public List<User> getFriends(User initiator) {
         String sqlQuery = "SELECT ID, NAME, LOGIN, EMAIL, BIRTHDAY FROM FILMORATE_USER WHERE ID IN" +
                 "(SELECT ACCEPTOR_ID from FRIEND WHERE INITIATOR_ID = ?)";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, initiator.getId());
-    }
-
-    private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
-        return User.builder()
-                .id(resultSet.getLong("id"))
-                .name(resultSet.getString("name"))
-                .login(resultSet.getString("login"))
-                .email(resultSet.getString("email"))
-                .birthday(resultSet.getDate("birthday").toLocalDate())
-                .build();
+        return jdbcTemplate.query(sqlQuery, mapper::mapRowToUser, initiator.getId());
     }
 }
