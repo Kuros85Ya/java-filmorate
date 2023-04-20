@@ -18,10 +18,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void save(User user) {
+    public User save(User user) {
         User validatedUser = ValidateService.validate(user);
-        user.setId(generateId());
-        users.put(user.getId(), validatedUser);
+        validatedUser.setId(generateId());
+        users.put(validatedUser.getId(), validatedUser);
+        return validatedUser;
     }
 
     @Override

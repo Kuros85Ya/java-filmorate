@@ -1,0 +1,2 @@
+insert into FILMORATE_USER(ID, LOGIN, NAME, EMAIL, BIRTHDAY) values (0, 'testUser', 'name', 'mail@mail.com', '1985-08-21');
+insert into FILM(ID, NAME, DESCRIPTION, DURATION, RELEASE_DATE, RATING_ID) values (0, 'Default Name', 'Default description', 120, '2005-04-12', 1);
