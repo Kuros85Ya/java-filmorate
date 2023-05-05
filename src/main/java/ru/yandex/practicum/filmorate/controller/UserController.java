@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -11,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -21,7 +21,7 @@ public class UserController {
     private final UserService service;
 
     @Autowired
-    public UserController(@Qualifier("UserDbStorage") UserStorage storage, @Qualifier("userDbService") UserService service) {
+    public UserController(UserStorage storage, UserService service) {
         this.repository = storage;
         this.service = service;
     }
@@ -41,8 +41,7 @@ public class UserController {
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Long id) {
         log.info("Запрошен список друзей пользователя {}", id);
-        User initiator = repository.getUser(id);
-        return service.getFriends(initiator);
+        return repository.getUser(id).getFriends().stream().map(repository::getUser).collect(Collectors.toList());
     }
 
     /**
@@ -69,9 +68,9 @@ public class UserController {
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         log.info("Пытаемся добавить юзера {}", user);
-        User addedUser = repository.save(user);
+        repository.save(user);
         log.info("Успешно добавлен {}", user);
-        return addedUser;
+        return user;
     }
 
     /**

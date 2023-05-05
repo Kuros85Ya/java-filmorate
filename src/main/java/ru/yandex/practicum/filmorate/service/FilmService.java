@@ -1,26 +1,51 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.comparator.FilmLikeComparator;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public interface FilmService {
-    void addLike(User initiator, Film acceptor);
+@Service
+public class FilmService {
+    private final FilmStorage filmStorage;
 
-    void removeLike(User initiator, Film acceptor);
+    @Autowired
+    public FilmService(FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
+    }
 
-    List<Film> getMostPopularMovies(int numberOfMovies);
+    public void addLike(User initiator, Film acceptor) {
+        Set<Long> userLikes = initiator.getLikedMovies();
+        Set<Long> filmLikes = acceptor.getUserLiked();
 
-    List<Genre> getAllGenres();
+        userLikes.add(acceptor.getId());
+        filmLikes.add(initiator.getId());
 
-    List<Genre> getFilmGenres(Long id);
+        initiator.setLikedMovies(filmLikes);
+        acceptor.setUserLiked(userLikes);
+    }
 
-    Genre getGenre(Long id);
+    public void removeLike(User initiator, Film acceptor) {
+        Set<Long> userLikes = initiator.getLikedMovies();
+        Set<Long> filmLikes = acceptor.getUserLiked();
 
-    List<Rating> getAllAgeRatings();
+        userLikes.remove(acceptor.getId());
+        filmLikes.remove(initiator.getId());
 
-    Rating getAgeRating(Long id);
+        initiator.setLikedMovies(filmLikes);
+        acceptor.setUserLiked(userLikes);
+    }
+
+    public List<Film> getMostPopularMovies(int numberOfMovies) {
+        List<Film> allMovies = new ArrayList<>(filmStorage.getFilms().values());
+        allMovies.sort(new FilmLikeComparator());
+        return allMovies.stream().limit(numberOfMovies).collect(Collectors.toList());
+    }
 }
