@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Component
@@ -20,30 +19,23 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film save(Film film) {
+    public void save(Film film) {
         ValidateService.validate(film);
         film.setId(generateId());
         films.put(film.getId(), film);
-        return film;
     }
 
     @Override
     @SneakyThrows
-    public Film update(Film film) {
+    public void update(Film film) {
         if (!films.containsKey(film.getId()))
             throw new NoSuchElementException("Фильма с id " + film.getId() + " не существует");
         films.put(film.getId(), film);
-        return film;
     }
 
     @Override
     public HashMap<Long, Film> getFilms() {
         return films;
-    }
-
-    @Override
-    public void setFilmGenres(List<Film> films) {
-        throw new UnsupportedOperationException("Данный метод работает только при наличии БД");
     }
 
     @Override
