@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -23,7 +24,9 @@ public class FilmController {
     private final FilmService service;
 
     @Autowired
-    public FilmController(FilmStorage filmStorage, UserStorage userStorage, FilmService service) {
+    public FilmController(@Qualifier("FilmDbStorage") FilmStorage filmStorage,
+                          @Qualifier("UserDbStorage") UserStorage userStorage,
+                          @Qualifier("filmDbService") FilmService service) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.service = service;
@@ -62,9 +65,9 @@ public class FilmController {
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         log.info("Пытаемся добавить фильм {}", film);
-        filmStorage.save(film);
+        Film newFilm = filmStorage.save(film);
         log.info("Успешно добавлен {}", film);
-        return film;
+        return newFilm;
     }
 
     /**
@@ -74,9 +77,9 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         ValidateService.validate(film);
-        filmStorage.update(film);
+        Film finalFilm = filmStorage.update(film);
         log.info("Изменен фильм с id {}", film.getId());
-        return film;
+        return finalFilm;
     }
 
     /**
